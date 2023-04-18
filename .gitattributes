@@ -1,0 +1,50 @@
+# Auto detect text files and perform LF normalization
+* text=auto
+
+*.json text eol=crlf
+*.js text eol=crlf
+
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.svg binary
+*.ttf binary
+*.woff binary
+*.woff2 binary
+*.eot binary
+*.otf binary
+*.pdf binary
+*.doc binary
+*.docx binary
+*.xls binary
+*.xlsx binary
+*.ppt binary
+*.pptx binary
+*.zip binary
+*.rar binary
+*.7z binary
+*.gz binary
+*.tar binary
+*.tgz binary
+*.bz2 binary
+*.xz binary
+*.mp3 binary
+*.mp4 binary
+*.avi binary
+*.mov binary
+*.wmv binary
+*.flv binary
+*.mkv binary
+*.swf binary
+*.webm binary
+*.ogg binary
+*.ogv binary
+*.mpg binary
+*.mpeg binary
+*.m4v binary
+*.m4a binary
+*.aac binary
+*.wav binary
+*.flac binary

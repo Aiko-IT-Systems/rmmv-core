@@ -1,0 +1,17 @@
+{
+  "name": "",
+  "description": "",
+  "main": "index.html",
+  "js-flags": "--expose-gc",
+  "window": {
+    "title": "",
+    "width": 816,
+    "height": 624,
+    "icon": "icon/icon.png",
+    "frame": true,
+    "position": "center",
+    "toolbar": false,
+  },
+  "chromium-args": "--in-process-gpu --enable-node-worker",
+  "nodejs": true
+}
