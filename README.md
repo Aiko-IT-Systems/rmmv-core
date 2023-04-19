@@ -2,6 +2,8 @@
 
 This is a custom core for RPG Maker MV. It is based on the default core, but with some changes.
 
+> :warning: This core is WIP
+
 ## Backstory
 
 We are currently working on the game [Traveler](https://traveler-rpg.dev).
