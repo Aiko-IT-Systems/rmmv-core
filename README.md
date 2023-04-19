@@ -28,6 +28,21 @@ So here we are.
 | [Pixi.js](NewData/js/libs/pixi.js)         | [v4.5.6](https://github.com/pixijs/pixijs/releases/tag/v4.5.6) |
 | [FPSMeter](NewData/js/libs/fpsmeter.js)    | v0.3.1                                                         |
 
+## Installation
+
+### Installation for RPG Maker MV
+
+1. Download the latest release
+2. Copy the whole `NewData` folder into your RPG Maker MV installation
+3. Start RPG Maker MV and create a new project
+
+### Installation for existing projects
+
+1. Download the latest release
+2. Copy the contents of the `NewData` folder into your project
+3. Replace [NewData/index.html#L11](https://github.com/Aiko-IT-Systems/rmmv-core/blob/main/NewData/index.html#L11) with your game title
+4. Replace [NewData/package.json#L2](https://github.com/Aiko-IT-Systems/rmmv-core/blob/main/NewData/package.json#L2) & [NewData/package.json#L7](https://github.com/Aiko-IT-Systems/rmmv-core/blob/main/NewData/package.json#L7) with your game title and [NewData/package.json#L3](https://github.com/Aiko-IT-Systems/rmmv-core/blob/main/NewData/package.json#L2) with your game description
+
 ## Changes
 
 TODO
