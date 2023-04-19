@@ -1,10 +1,10 @@
 {
-  "name": "",
-  "description": "",
+  "name": "game",
+  "description": "My awesome game",
   "main": "index.html",
   "js-flags": "--expose-gc",
   "window": {
-    "title": "",
+    "title": "Game",
     "width": 816,
     "height": 624,
     "icon": "icon/icon.png",
