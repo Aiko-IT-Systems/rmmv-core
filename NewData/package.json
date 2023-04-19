@@ -10,7 +10,7 @@
     "icon": "icon/icon.png",
     "frame": true,
     "position": "center",
-    "toolbar": false,
+    "toolbar": false
   },
   "chromium-args": "--in-process-gpu --enable-node-worker",
   "nodejs": true
