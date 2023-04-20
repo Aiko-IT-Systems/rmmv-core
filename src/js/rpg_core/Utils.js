@@ -26,9 +26,9 @@ Utils.RPGMAKER_NAME = 'MV';
  * @type String
  * @final
  */
-Utils.RPGMAKER_VERSION = "1.6.1";
+Utils.RPGMAKER_VERSION = "2.0.0";
 
-Utils.RPGMAKER_ENGINE = "community-1.3b";
+Utils.RPGMAKER_ENGINE = "rmmv-core-custom";
 
 /**
  * Checks whether the option is in the query string.

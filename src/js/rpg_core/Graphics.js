@@ -370,6 +370,10 @@ Graphics.printLoadingError = function(url) {
         button.style.fontSize = '24px';
         button.style.color = '#ffffff';
         button.style.backgroundColor = '#000000';
+        button.style.position = "absolute";
+        button.style.left = "50%";
+        button.style.transform = "translate(-50%)";
+        button.style.bottom = "0px";
         button.addEventListener('touchstart', function(event) {
             event.stopPropagation();
         });
@@ -377,6 +381,7 @@ Graphics.printLoadingError = function(url) {
             ResourceHandler.retry();
         });
         this._errorPrinter.appendChild(button);
+        this._animateError();
         this._loadingCount = -Infinity;
     }
 };
@@ -426,6 +431,7 @@ Graphics.printError = function(name, message) {
     }
     this._applyCanvasFilter();
     this._clearUpperCanvas();
+    this._animateError();
 };
 
 /**
@@ -813,9 +819,29 @@ Graphics._updateRealScale = function() {
  * @private
  */
 Graphics._makeErrorHtml = function(name, message) {
-    return ('<font color="yellow"><b>' + name + '</b></font><br>' +
-            '<font color="white">' + decodeURIComponent(message) + '</font><br>');
+    console.error(name + "\n\n" + message);
+    return ('<div id="error" data-text="' + name + '"><spaguetti><fork></fork><meat></meat><pasta></pasta><plate></plate></spaguetti></div><div id="desc">' + message +'</div>');
 };
+
+/**
+ * Animates the error.
+ *
+ * @static
+ * @method _animateError
+ */
+Graphics._animateError = function() {
+    let error_div = document.getElementById("error");
+    let i = 0, data = "", text = error_div.getAttribute("data-text");
+    let typing = setInterval(() => {
+        if (i == text.length) {
+            clearInterval(typing);
+        } else {
+            data += text[i];
+            error_div.setAttribute("data-text", data);
+            i++;
+        }
+    }, 100);
+}
 
 /**
  * @static
@@ -875,7 +901,7 @@ Graphics._modifyExistingElements = function() {
  * @private
  */
 Graphics._createErrorPrinter = function() {
-    this._errorPrinter = document.createElement('p');
+    this._errorPrinter = document.createElement('div');
     this._errorPrinter.id = 'ErrorPrinter';
     this._updateErrorPrinter();
     document.body.appendChild(this._errorPrinter);
@@ -899,7 +925,7 @@ Graphics._updateErrorPrinter = function() {
     this._errorPrinter.style.textShadow = '1px 1px 3px #000';
     this._errorPrinter.style.fontSize = '20px';
     this._errorPrinter.style.zIndex = 99;
-    this._centerElement(this._errorPrinter);
+    this._centerElement(this._errorPrinter, false);
 };
 
 /**
@@ -1220,13 +1246,18 @@ Graphics._createFontLoader = function(name) {
  * @static
  * @method _centerElement
  * @param {HTMLElement} element
+ * @param {Boolean} useMarginAutoForAll
  * @private
  */
-Graphics._centerElement = function(element) {
+Graphics._centerElement = function(element, useMarginAutoForAll = false) {
     var width = element.width * this._realScale;
     var height = element.height * this._realScale;
     element.style.position = 'absolute';
-    element.style.margin = 'auto';
+    if (useMarginAutoForAll) {
+        element.style.margin = 'auto';
+    } else {
+        element.style.marginTop = 'auto';
+    }
     element.style.top = 0;
     element.style.left = 0;
     element.style.right = 0;
