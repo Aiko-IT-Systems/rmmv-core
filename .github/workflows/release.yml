@@ -1,3 +1,7 @@
+# This is a release workflow which executes the command "npm run package" in the "src" folder.
+# the output will be found as "rmmv-core.zip" script in the "src" folder.
+# The zip will be uploaded as an artifact and published as a release in the end.
+
 name: Release
 
 on:
@@ -16,15 +20,14 @@ on:
 permissions: write-all
 
 jobs:
-    release:
-        name: Release RMMV-Core
+    build:
         runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@v2
             - name: Setup Node.js
               uses: actions/setup-node@v1
               with:
-                  node-version: 16.x
+                  node-version: latest
             - name: Install dependencies
               run: npm install
               working-directory: ./src
@@ -47,4 +50,3 @@ jobs:
                   token: ${{ secrets.GITHUB_TOKEN }}
                   generate_release_notes: true
                   files: src/rmmv-core.zip
-                  target_commitish: ${{ github.ref_name }}
