@@ -2,7 +2,7 @@ name: Twitter Release
 
 on:
     release:
-        types: [published, prereleased, released]
+        types: [released]
 
 jobs:
     tweet:
