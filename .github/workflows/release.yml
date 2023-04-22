@@ -1,7 +1,3 @@
-# This is a release workflow which executes the command "npm run package" in the "src" folder.
-# the output will be found as "rmmv-core.zip" script in the "src" folder.
-# The zip will be uploaded as an artifact and published as a release in the end.
-
 name: Release
 
 on:
