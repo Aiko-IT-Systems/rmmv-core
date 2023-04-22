@@ -1,5 +1,7 @@
 # RPG Maker MV Custom Core
 
+![RCCB](banner.png)
+
 This is a custom core for RPG Maker MV. It is based on the default core, but with some changes.
 
 > :warning: This core is WIP
@@ -17,14 +19,14 @@ So here we are.
 
 ## Version Overview
 
-| Name         | Version (engine name, if applicable)                           |
+| Name         | Version                                                        |
 | ------------ | -------------------------------------------------------------- |
-| RPG Core     | v2.0.0 (rmmv-core-custom)                                      |
-| RPG Managers | v2.0.0 (rmmv-core-custom)                                      |
-| RPG Objects  | v2.0.0 (rmmv-core-custom)                                      |
-| RPG Scenes   | v2.0.0 (rmmv-core-custom)                                      |
-| RPG Sprites  | v2.0.0 (rmmv-core-custom)                                      |
-| RPG Windows  | v2.0.0 (rmmv-core-custom)                                      |
+| RPG Core     | v2.0.0 ([source](src/js/rpg_core/))                            |
+| RPG Managers | v2.0.0 ([source](src/js/rpg_managers/))                        |
+| RPG Objects  | v2.0.0 ([source](src/js/rpg_objecs/))                          |
+| RPG Scenes   | v2.0.0 ([source](src/js/rpg_scenes/))                          |
+| RPG Sprites  | v2.0.0 ([source](src/js/rpg_sprites/))                         |
+| RPG Windows  | v2.0.0 ([source](src/js/rpg_windows/))                         |
 | Pixi.js      | [v4.5.6](https://github.com/pixijs/pixijs/releases/tag/v4.5.6) |
 | FPSMeter     | v0.3.1                                                         |
 
