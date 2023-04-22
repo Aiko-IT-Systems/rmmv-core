@@ -20,7 +20,8 @@ on:
 permissions: write-all
 
 jobs:
-    build:
+    release:
+        name: Release RMMV-Core
         runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@v2
@@ -50,3 +51,4 @@ jobs:
                   token: ${{ secrets.GITHUB_TOKEN }}
                   generate_release_notes: true
                   files: src/rmmv-core.zip
+                  target_commitish: ${{ github.ref_name }}
