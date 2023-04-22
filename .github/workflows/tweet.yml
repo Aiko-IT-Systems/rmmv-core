@@ -1,0 +1,22 @@
+name: Twitter Release
+
+on:
+    release:
+        types: [published]
+
+jobs:
+    tweet:
+        name: Tweet
+        runs-on: ubuntu-latest
+        steps:
+            - name: Tweet
+              uses: Lulalaby/tweet@v1.3.0
+              with:
+                status: |
+                  Released ${{ github.event.release.name }}
+                  ${{ github.event.release.html_url }}
+              env:      
+                CONSUMER_API_KEY: ${{ secrets.AITSYS_CONSUMER_KEY }}
+                CONSUMER_API_SECRET_KEY: ${{ secrets.AITSYS_CONSUMER_SECRET }}
+                ACCESS_TOKEN: ${{ secrets.AITSYS_ACCESS_TOKEN_KEY }}
+                ACCESS_TOKEN_SECRET: ${{ secrets.AITSYS_ACCESS_TOKEN_SECRET }}
