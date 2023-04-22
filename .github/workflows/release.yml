@@ -1,0 +1,52 @@
+# This is a release workflow which executes the command "npm run package" in the "src" folder.
+# the output will be found as "rmmv-core.zip" script in the "src" folder.
+# The zip will be uploaded as an artifact and published as a release in the end.
+
+name: Release
+
+on:
+    workflow_dispatch:
+        inputs:
+            version:
+                description: 'Version'
+                required: true
+                default: '1.0.0'
+            prerelease:
+                description: 'Prerelease'
+                required: true
+                type: boolean
+                default: false
+
+permissions: write-all
+
+jobs:
+    build:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v2
+            - name: Setup Node.js
+              uses: actions/setup-node@v1
+              with:
+                  node-version: latest
+            - name: Install dependencies
+              run: npm install
+              working-directory: ./src
+            - name: Build
+              run: npm run package
+              working-directory: ./src
+            - name: Upload artifact
+              uses: actions/upload-artifact@v2
+              with:
+                  name: rmmv-core
+                  path: src/rmmv-core.zip
+            - name: Create Release
+              id: create_release
+              uses: softprops/action-gh-release@v1
+              with:
+                  tag_name: v${{ inputs.version }}
+                  name: Release v${{ inputs.version }}
+                  draft: false
+                  prerelease: ${{ inputs.prerelease }}
+                  token: ${{ secrets.GITHUB_TOKEN }}
+                  generate_release_notes: true
+                  files: src/rmmv-core.zip
