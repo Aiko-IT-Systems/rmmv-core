@@ -10,7 +10,7 @@ jobs:
         runs-on: ubuntu-latest
         steps:
             - name: Tweet
-              uses: Lulalaby/tweet@v1.3.0
+              uses: Lulalaby/tweet@v2.0.0
               with:
                 status: |
                   Released ${{ github.event.release.name }}
