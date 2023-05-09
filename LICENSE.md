@@ -1,6 +1,7 @@
 MIT License
 
 Copyright (c) 2023 Aiko IT Systems
+
 Copyright (c) 2015 KADOKAWA CORPORATION./YOJI OJIMA
 
 Permission is hereby granted, free of charge, to any person obtaining a copy

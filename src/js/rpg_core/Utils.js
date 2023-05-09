@@ -28,6 +28,14 @@ Utils.RPGMAKER_NAME = 'MV';
  */
 Utils.RPGMAKER_VERSION = "2.0.0";
 
+/**
+ * The name of the generator engine.
+ * 
+ * @static
+ * @property RPGMAKER_ENGINE
+ * @type String
+ * @final
+ */
 Utils.RPGMAKER_ENGINE = "rmmv-core-custom";
 
 /**

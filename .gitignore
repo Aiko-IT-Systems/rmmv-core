@@ -47,11 +47,10 @@ jspm_packages
 # Yarn Integrity file
 .yarn-integrity
 
-# Lockfile
-package-lock.json
-
 .idea
-dist/
+src/dist/
+src/game/
 *.iml
-rmmv-core.zip
-package-lock.json
+src/rmmv-core/
+src/rmmv-core.zip
+src/package-lock.json
