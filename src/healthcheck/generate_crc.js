@@ -14,7 +14,7 @@ const files = [
 ];
 
 const CRC32 = require('crc-32');
-const cpx = require('cpx');
+const cpx = require('@akryum/cpx');
 const fs = require('fs');
 const path = require('path');
 

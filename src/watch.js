@@ -1,6 +1,6 @@
 const {readFileSync} = require('fs');
 
-const {copySync} = require('cpx');
+const {copySync} = require('@akryum/cpx');
 const watch = require('node-watch');
 
 const concatSource = require('./concat.js');
