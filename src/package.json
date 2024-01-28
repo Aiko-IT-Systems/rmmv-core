@@ -43,6 +43,6 @@
     "crc-32": "^1.2.2",
     "http-server": "^14.1.1",
     "node-watch": "^0.7.3",
-    "npm-run-all2": "^5.0.0"
+    "npm-run-all2": "^6.0.0"
   }
 }
