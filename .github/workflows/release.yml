@@ -20,11 +20,11 @@ jobs:
         name: Release RMMV-Core
         runs-on: ubuntu-latest
         steps:
-            - uses: actions/checkout@v5
+            - uses: actions/checkout@v6
             - name: Setup Node.js
               uses: actions/setup-node@v6
               with:
-                  node-version: 22.x
+                  node-version: 24.x
             - name: Install dependencies
               run: npm install
               working-directory: ./src
@@ -32,7 +32,7 @@ jobs:
               run: npm run package
               working-directory: ./src
             - name: Upload artifact
-              uses: actions/upload-artifact@v4
+              uses: actions/upload-artifact@v6
               with:
                   name: rmmv-core
                   path: src/rmmv-core.zip
