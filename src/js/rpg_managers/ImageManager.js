@@ -12,6 +12,7 @@ ImageManager.cache = new CacheMap(ImageManager);
 ImageManager._imageCache = new ImageCache();
 ImageManager._requestQueue = new RequestQueue();
 ImageManager._systemReservationId = Utils.generateRuntimeId();
+ImageManager._fallbacks = {};
 
 ImageManager._generateCacheKey = function(path, hue){
     return  path + ':' + hue;
@@ -76,7 +77,8 @@ ImageManager.loadTitle2 = function(filename, hue) {
 ImageManager.loadBitmap = function(folder, filename, hue, smooth) {
     if (filename) {
         var path = folder + encodeURIComponent(filename) + '.png';
-        var bitmap = this.loadNormalBitmap(path, hue || 0);
+        var fallbackPath = this._getFallbackPath(folder, path);
+        var bitmap = this.loadNormalBitmap(path, hue || 0, fallbackPath);
         bitmap.smooth = smooth;
         return bitmap;
     } else {
@@ -95,11 +97,14 @@ ImageManager.loadEmptyBitmap = function() {
     return empty;
 };
 
-ImageManager.loadNormalBitmap = function(path, hue) {
+ImageManager.loadNormalBitmap = function(path, hue, fallbackPath) {
     var key = this._generateCacheKey(path, hue);
     var bitmap = this._imageCache.get(key);
     if (!bitmap) {
-        bitmap = Bitmap.load(decodeURIComponent(path));
+        bitmap = Bitmap.load(
+            decodeURIComponent(path),
+            fallbackPath ? decodeURIComponent(fallbackPath) : null
+        );
         this._callCreationHook(bitmap);
 
         bitmap.addLoadListener(function() {
@@ -107,10 +112,42 @@ ImageManager.loadNormalBitmap = function(path, hue) {
         });
         this._imageCache.add(key, bitmap);
     }else if(!bitmap.isReady()){
+        bitmap.setFallbackUrl(fallbackPath ? decodeURIComponent(fallbackPath) : null);
         bitmap.decode();
+    } else {
+        bitmap.setFallbackUrl(fallbackPath ? decodeURIComponent(fallbackPath) : null);
     }
 
     return bitmap;
+};
+
+ImageManager.setFallback = function(folder, filename) {
+    if (filename) {
+        this._fallbacks[folder] = folder + encodeURIComponent(filename) + '.png';
+    } else {
+        delete this._fallbacks[folder];
+    }
+};
+
+ImageManager.clearFallback = function(folder) {
+    delete this._fallbacks[folder];
+};
+
+ImageManager.setPictureFallback = function(filename) {
+    this.setFallback('img/pictures/', filename);
+};
+
+ImageManager.clearPictureFallback = function() {
+    this.clearFallback('img/pictures/');
+};
+
+ImageManager._getFallbackPath = function(folder, path) {
+    var fallbackPath = this._fallbacks[folder];
+    if (fallbackPath && fallbackPath !== path) {
+        return fallbackPath;
+    }
+
+    return null;
 };
 
 ImageManager.clear = function() {
@@ -195,7 +232,8 @@ ImageManager.reserveTitle2 = function(filename, hue, reservationId) {
 ImageManager.reserveBitmap = function(folder, filename, hue, smooth, reservationId) {
     if (filename) {
         var path = folder + encodeURIComponent(filename) + '.png';
-        var bitmap = this.reserveNormalBitmap(path, hue || 0, reservationId || this._defaultReservationId);
+        var fallbackPath = this._getFallbackPath(folder, path);
+        var bitmap = this.reserveNormalBitmap(path, hue || 0, reservationId || this._defaultReservationId, fallbackPath);
         bitmap.smooth = smooth;
         return bitmap;
     } else {
@@ -203,8 +241,8 @@ ImageManager.reserveBitmap = function(folder, filename, hue, smooth, reservation
     }
 };
 
-ImageManager.reserveNormalBitmap = function(path, hue, reservationId){
-    var bitmap = this.loadNormalBitmap(path, hue);
+ImageManager.reserveNormalBitmap = function(path, hue, reservationId, fallbackPath){
+    var bitmap = this.loadNormalBitmap(path, hue, fallbackPath);
     this._imageCache.reserve(this._generateCacheKey(path, hue), bitmap, reservationId);
 
     return bitmap;
@@ -278,7 +316,8 @@ ImageManager.requestTitle2 = function(filename, hue) {
 ImageManager.requestBitmap = function(folder, filename, hue, smooth) {
     if (filename) {
         var path = folder + encodeURIComponent(filename) + '.png';
-        var bitmap = this.requestNormalBitmap(path, hue || 0);
+        var fallbackPath = this._getFallbackPath(folder, path);
+        var bitmap = this.requestNormalBitmap(path, hue || 0, fallbackPath);
         bitmap.smooth = smooth;
         return bitmap;
     } else {
@@ -286,11 +325,11 @@ ImageManager.requestBitmap = function(folder, filename, hue, smooth) {
     }
 };
 
-ImageManager.requestNormalBitmap = function(path, hue){
+ImageManager.requestNormalBitmap = function(path, hue, fallbackPath){
     var key = this._generateCacheKey(path, hue);
     var bitmap = this._imageCache.get(key);
     if(!bitmap){
-        bitmap = Bitmap.request(path);
+        bitmap = Bitmap.request(path, fallbackPath);
         this._callCreationHook(bitmap);
 
         bitmap.addLoadListener(function(){
@@ -299,6 +338,7 @@ ImageManager.requestNormalBitmap = function(path, hue){
         this._imageCache.add(key, bitmap);
         this._requestQueue.enqueue(key, bitmap);
     }else{
+        bitmap.setFallbackUrl(fallbackPath);
         this._requestQueue.raisePriority(key);
     }
 

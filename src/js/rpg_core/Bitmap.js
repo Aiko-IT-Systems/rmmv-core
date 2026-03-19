@@ -136,6 +136,8 @@ Bitmap.prototype.initialize = function(width, height) {
     this._loadListeners = [];
     this._loadingState = 'none';
     this._decodeAfterRequest = false;
+    this._fallbackUrl = null;
+    this._hasTriedFallback = false;
 
     /**
      * Cache entry, for images. In all cases _url is the same as cacheEntry.key
@@ -200,12 +202,13 @@ Bitmap.prototype.initialize = function(width, height) {
  * @param {String} url The image url of the texture
  * @return Bitmap
  */
-Bitmap.load = function(url) {
+Bitmap.load = function(url, fallbackUrl) {
     var bitmap = Object.create(Bitmap.prototype);
     bitmap._defer = true;
     bitmap.initialize();
 
     bitmap._decodeAfterRequest = true;
+    bitmap.setFallbackUrl(fallbackUrl);
     bitmap._requestImage(url);
 
     return bitmap;
@@ -953,6 +956,11 @@ Bitmap.prototype.decode = function(){
     }
 };
 
+Bitmap.prototype.setFallbackUrl = function(url) {
+    this._fallbackUrl = url || null;
+    this._hasTriedFallback = false;
+};
+
 /**
  * @method _callLoadListeners
  * @private
@@ -971,6 +979,17 @@ Bitmap.prototype._callLoadListeners = function() {
 Bitmap.prototype._onError = function() {
     this._image.removeEventListener('load', this._loadListener);
     this._image.removeEventListener('error', this._errorListener);
+
+    if (this._fallbackUrl && !this._hasTriedFallback && this._url !== this._fallbackUrl) {
+        console.warn('Failed to load bitmap, retrying with fallback.', {
+            url: this._url,
+            fallbackUrl: this._fallbackUrl
+        });
+        this._hasTriedFallback = true;
+        this._requestImage(this._fallbackUrl);
+        return;
+    }
+
     this._loadingState = 'error';
 };
 
@@ -997,13 +1016,14 @@ Bitmap.prototype.checkDirty = function() {
     }
 };
 
-Bitmap.request = function(url){
+Bitmap.request = function(url, fallbackUrl){
     var bitmap = Object.create(Bitmap.prototype);
     bitmap._defer = true;
     bitmap.initialize();
 
     bitmap._url = url;
     bitmap._loadingState = 'pending';
+    bitmap.setFallbackUrl(fallbackUrl);
 
     return bitmap;
 };
@@ -1015,7 +1035,7 @@ Bitmap.prototype._requestImage = function(url){
         this._image = new Image();
     }
 
-    if (this._decodeAfterRequest && !this._loader) {
+    if (this._decodeAfterRequest && !this._loader && (!this._fallbackUrl || url === this._fallbackUrl)) {
         this._loader = ResourceHandler.createLoader(url, this._requestImage.bind(this, url), this._onError.bind(this));
     }
 

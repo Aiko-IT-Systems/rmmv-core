@@ -26,7 +26,7 @@ Utils.RPGMAKER_NAME = 'MV';
  * @type String
  * @final
  */
-Utils.RPGMAKER_VERSION = "2.0.0";
+Utils.RPGMAKER_VERSION = "2.0.1";
 
 /**
  * The name of the generator engine.

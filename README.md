@@ -21,12 +21,12 @@ So here we are.
 
 | Name         | Version                                                        |
 | ------------ | -------------------------------------------------------------- |
-| RPG Core     | v2.0.0 ([source](src/js/rpg_core/))                            |
-| RPG Managers | v2.0.0 ([source](src/js/rpg_managers/))                        |
-| RPG Objects  | v2.0.0 ([source](src/js/rpg_objecs/))                          |
-| RPG Scenes   | v2.0.0 ([source](src/js/rpg_scenes/))                          |
-| RPG Sprites  | v2.0.0 ([source](src/js/rpg_sprites/))                         |
-| RPG Windows  | v2.0.0 ([source](src/js/rpg_windows/))                         |
+| RPG Core     | v2.0.1 ([source](src/js/rpg_core/))                            |
+| RPG Managers | v2.0.1 ([source](src/js/rpg_managers/))                        |
+| RPG Objects  | v2.0.1 ([source](src/js/rpg_objects/))                          |
+| RPG Scenes   | v2.0.1 ([source](src/js/rpg_scenes/))                          |
+| RPG Sprites  | v2.0.1 ([source](src/js/rpg_sprites/))                         |
+| RPG Windows  | v2.0.1 ([source](src/js/rpg_windows/))                         |
 | Pixi.js      | [v4.5.6](https://github.com/pixijs/pixijs/releases/tag/v4.5.6) |
 | FPSMeter     | v0.3.1                                                         |
 
