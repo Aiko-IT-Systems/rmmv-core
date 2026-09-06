@@ -38,11 +38,11 @@
   "license": "MIT",
   "devDependencies": {
     "@akryum/cpx": "^1.5.3",
-    "bestzip": "^2.2.1",
+    "bestzip": "^4.0.0",
     "concat-with-sourcemaps": "^1.1.0",
     "crc-32": "^1.2.2",
     "http-server": "^14.1.1",
     "node-watch": "^0.7.3",
-    "npm-run-all2": "^8.0.0"
+    "npm-run-all2": "^9.0.0"
   }
 }
