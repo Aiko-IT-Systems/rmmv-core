@@ -202,14 +202,23 @@ SceneManager.onKeyDown = function(event) {
 
 SceneManager.catchException = function(e) {
     if (e instanceof Error) {
-        Graphics.printError(e.name, e.message);
-        Graphics.printErrorDetail(e);
+        // Log before drawing the overlay so a broken/incomplete renderer cannot hide the root error.
         console.error(e.stack);
+        try {
+            Graphics.printFullError(e.name, e.message, e.stack);
+        } catch (displayError) {
+            console.error('Failed to render the error screen:', displayError);
+        }
     } else {
-        Graphics.printError('UnknownError', e);
+        console.error('UnknownError', e);
+        try {
+            Graphics.printError('UnknownError', e);
+        } catch (displayError) {
+            console.error('Failed to render the error screen:', displayError);
+        }
     }
-    AudioManager.stopAll();
-    this.stop();
+    try { AudioManager.stopAll(); } catch (audioError) { console.error('Failed to stop audio after an error:', audioError); }
+    try { this.stop(); } catch (stopError) { console.error('Failed to stop after an error:', stopError); }
 };
 
 SceneManager.tickStart = function() {

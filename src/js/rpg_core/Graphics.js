@@ -415,7 +415,7 @@ Graphics.eraseLoadingError = function() {
  */
 Graphics.printError = function(name, message) {
     this._errorShowed = true;
-    this._hideProgress();
+    if (this._progressElement) this._hideProgress();
     this.hideFps();
     if (this._errorPrinter) {
         this._updateErrorPrinter();
@@ -430,8 +430,54 @@ Graphics.printError = function(name, message) {
         }
     }
     this._applyCanvasFilter();
-    this._clearUpperCanvas();
+    // Startup failures can reach the error screen before the upper canvas exists.
+    if (this._upperCanvas) this._clearUpperCanvas();
     this._animateError();
+};
+
+/**
+ * Displays the full startup/runtime error using Traveler's spaghetti screen.
+ *
+ * @static
+ * @method printFullError
+ */
+Graphics.printFullError = function(name, message, stack) {
+    var lines = String(stack || (name + ': ' + message)).split(/(?:\r\n|\r|\n)/);
+    var body = '';
+    for (var i = 0; i < lines.length; i++) {
+        // Keep local file paths compact, as the former Yanfly overlay did.
+        lines[i] = lines[i].replace(/[\(](.*[\/])/, '(');
+        body += '<p class="errorline">' + this._escapeErrorHtml(lines[i]) + '</p>';
+    }
+
+    this._errorShowed = true;
+    if (this._progressElement) this._hideProgress();
+    this.hideFps();
+    if (this._errorPrinter) {
+        this._updateErrorPrinter();
+        this._errorPrinter.height = this._height * 0.5;
+        this._errorPrinter.style.textAlign = 'left';
+        this._centerElement(this._errorPrinter);
+        this._errorPrinter.innerHTML = '<div id="error" data-text="Game has encountered a bug. We\'ll fix it soon."><spaguetti><fork></fork><meat></meat><pasta></pasta><plate></plate></spaguetti></div>' +
+            '<div id="restart"><font color="yellow">Press <span style="color: white">F5</span> to restart the game.</font></div>' +
+            '<div id="tit">' + this._escapeErrorHtml(name + ': ' + message) + '</div>' +
+            '<div id="desc">' + body + '</div>';
+        this._errorPrinter.style.userSelect = 'text';
+        this._errorPrinter.style.webkitUserSelect = 'text';
+        this._errorPrinter.style.msUserSelect = 'text';
+        this._errorPrinter.style.mozUserSelect = 'text';
+        this._errorPrinter.oncontextmenu = null;
+    }
+    this._applyCanvasFilter();
+    // Graphics initialization may have failed before _createUpperCanvas ran.
+    if (this._upperCanvas) this._clearUpperCanvas();
+    this._animateError();
+};
+
+Graphics._escapeErrorHtml = function(text) {
+    return String(text).replace(/[&<>"']/g, function(character) {
+        return {'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'}[character];
+    });
 };
 
 /**
@@ -831,6 +877,8 @@ Graphics._makeErrorHtml = function(name, message) {
  */
 Graphics._animateError = function() {
     let error_div = document.getElementById("error");
+    // If the error printer itself was not created, leave the original exception visible in the console.
+    if (!error_div) return;
     let i = 0, data = "", text = error_div.getAttribute("data-text");
     let typing = setInterval(() => {
         if (i == text.length) {
@@ -1053,7 +1101,8 @@ Graphics._createVideo = function() {
     this._video.setAttribute('playsinline', '');
     this._video.volume = this._videoVolume;
     this._updateVideo();
-    makeVideoPlayableInline(this._video);
+    // The bundled iphone-inline-video helper exposes this name; keep the engine call aligned with that API.
+    enableInlineVideo(this._video);
     document.body.appendChild(this._video);
 };
 
@@ -1099,7 +1148,10 @@ Graphics._updateUpperCanvas = function() {
  * @private
  */
 Graphics._clearUpperCanvas = function() {
+    // The exception handler can run before Graphics has completed canvas creation.
+    if (!this._upperCanvas) return;
     var context = this._upperCanvas.getContext('2d');
+    if (!context) return;
     context.clearRect(0, 0, this._width, this._height);
 };
 

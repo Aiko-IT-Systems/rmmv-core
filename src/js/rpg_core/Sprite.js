@@ -127,8 +127,9 @@ Object.defineProperty(Sprite.prototype, 'opacity', {
  * @method update
  */
 Sprite.prototype.update = function() {
-    // An indexed loop avoids allocating a callback for every sprite on every frame.
-    for (var i = 0; i < this.children.length; i++) {
+    // Snapshot length to preserve forEach behavior when a child is added during an update.
+    var childCount = this.children.length;
+    for (var i = 0; i < childCount; i++) {
         var child = this.children[i];
         if (child.update) {
             child.update();
