@@ -253,11 +253,13 @@ Scene_Base.prototype.updateFade = function() {
  * @memberof Scene_Base
  */
 Scene_Base.prototype.updateChildren = function() {
-    this.children.forEach(function(child) {
+    // An indexed loop avoids allocating a callback for every scene child on every frame.
+    for (var i = 0; i < this.children.length; i++) {
+        var child = this.children[i];
         if (child.update) {
             child.update();
         }
-    });
+    }
 };
 
 /**

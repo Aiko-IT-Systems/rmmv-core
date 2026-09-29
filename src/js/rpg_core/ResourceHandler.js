@@ -20,10 +20,9 @@ ResourceHandler.createLoader = function(url, retryMethod, resignMethod, retryInt
             setTimeout(retryMethod, retryInterval[retryCount]);
             retryCount++;
         } else {
-            if (resignMethod) {
-                resignMethod();
-            }
-            if (url) {
+            // Asset loaders may recover locally; only unrecovered resources should block the game.
+            var recovered = resignMethod ? resignMethod() === true : false;
+            if (url && !recovered) {
                 if (reloaders.length === 0) {
                     Graphics.printLoadingError(url);
                     SceneManager.stop();

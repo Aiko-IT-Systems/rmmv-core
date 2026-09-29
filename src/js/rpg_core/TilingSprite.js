@@ -96,11 +96,13 @@ Object.defineProperty(TilingSprite.prototype, 'opacity', {
  * @method update
  */
 TilingSprite.prototype.update = function() {
-    this.children.forEach(function(child) {
+    // An indexed loop avoids allocating a callback for every tiling sprite child on every frame.
+    for (var i = 0; i < this.children.length; i++) {
+        var child = this.children[i];
         if (child.update) {
             child.update();
         }
-    });
+    }
 };
 
 /**

@@ -26,7 +26,17 @@ Utils.RPGMAKER_NAME = 'MV';
  * @type String
  * @final
  */
-Utils.RPGMAKER_VERSION = "2.0.1";
+// Keep the runtime version aligned with the source and packaged 2.1.0 release.
+Utils.RPGMAKER_VERSION = "2.1.0";
+
+// Core asset events give host applications one consistent, structured diagnostic hook.
+Utils.emitAssetEvent = function(type, detail) {
+    if (typeof window !== 'undefined' && typeof window.dispatchEvent === 'function') {
+        window.dispatchEvent(new CustomEvent('traveler:core-asset', {
+            detail: Object.assign({ type: type }, detail || {})
+        }));
+    }
+};
 
 /**
  * The name of the generator engine.

@@ -22,11 +22,12 @@ Scene_Status.prototype.create = function() {
     this._statusWindow.setHandler('pageup',   this.previousActor.bind(this));
     this._statusWindow.reserveFaceImages();
     this.addWindow(this._statusWindow);
+    // Populate the first actor during creation; actor changes still refresh through onActorChange.
+    this.refreshActor();
 };
 
 Scene_Status.prototype.start = function() {
     Scene_MenuBase.prototype.start.call(this);
-    this.refreshActor();
 };
 
 Scene_Status.prototype.refreshActor = function() {

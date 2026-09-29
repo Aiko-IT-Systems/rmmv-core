@@ -13,6 +13,8 @@ Scene_Boot.prototype.constructor = Scene_Boot;
 Scene_Boot.prototype.initialize = function() {
     Scene_Base.prototype.initialize.call(this);
     this._startDate = Date.now();
+    // A single boot-time deadline avoids resetting font timeout state during readiness polling.
+    this._gameFontDeadline = this._startDate + 60000;
 };
 
 Scene_Boot.prototype.create = function() {
@@ -50,9 +52,9 @@ Scene_Boot.prototype.isReady = function() {
 Scene_Boot.prototype.isGameFontLoaded = function() {
     if (Graphics.isFontLoaded('GameFont')) {
         return true;
-    } else if (!Graphics.canUseCssFontLoading()){
-        var elapsed = Date.now() - this._startDate;
-        if (elapsed >= 60000) {
+    } else {
+        // Keep waiting for the same bounded deadline even when CSS font readiness is available.
+        if (Date.now() >= this._gameFontDeadline) {
             throw new Error('Failed to load GameFont');
         }
     }

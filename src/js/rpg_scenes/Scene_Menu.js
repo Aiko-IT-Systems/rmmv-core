@@ -23,7 +23,7 @@ Scene_Menu.prototype.create = function() {
 
 Scene_Menu.prototype.start = function() {
     Scene_MenuBase.prototype.start.call(this);
-    this._statusWindow.refresh();
+    // Window_MenuStatus refreshes during initialization, so avoid a duplicate redraw on scene start.
 };
 
 Scene_Menu.prototype.createCommandWindow = function() {

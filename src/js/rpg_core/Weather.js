@@ -100,11 +100,13 @@ Weather.prototype._updateAllSprites = function() {
     while (this._sprites.length > maxSprites) {
         this._removeSprite();
     }
-    this._sprites.forEach(function(sprite) {
+    // An indexed loop avoids allocating a callback for each weather particle on every frame.
+    for (var i = 0; i < this._sprites.length; i++) {
+        var sprite = this._sprites[i];
         this._updateSprite(sprite);
         sprite.x = sprite.ax - this.origin.x;
         sprite.y = sprite.ay - this.origin.y;
-    }, this);
+    }
 };
 
 /**

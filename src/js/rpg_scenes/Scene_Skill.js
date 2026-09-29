@@ -21,11 +21,12 @@ Scene_Skill.prototype.create = function() {
     this.createStatusWindow();
     this.createItemWindow();
     this.createActorWindow();
+    // Initialize actor-bound windows after every window exists, without repeating at scene start.
+    this.refreshActor();
 };
 
 Scene_Skill.prototype.start = function() {
     Scene_ItemBase.prototype.start.call(this);
-    this.refreshActor();
 };
 
 Scene_Skill.prototype.createSkillTypeWindow = function() {

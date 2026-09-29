@@ -189,11 +189,13 @@ Tilemap.prototype.isReady = function() {
 Tilemap.prototype.update = function() {
     this.animationCount++;
     this.animationFrame = Math.floor(this.animationCount / 30);
-    this.children.forEach(function(child) {
+    // An indexed loop avoids allocating a callback for every tilemap child on every frame.
+    for (var j = 0; j < this.children.length; j++) {
+        var child = this.children[j];
         if (child.update) {
             child.update();
         }
-    });
+    }
     for (var i=0; i<this.bitmaps.length;i++) {
         if (this.bitmaps[i]) {
             this.bitmaps[i].touch();

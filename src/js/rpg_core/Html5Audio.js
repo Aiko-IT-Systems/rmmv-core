@@ -124,6 +124,11 @@ Html5Audio._onLoadedData = function () {
  */
 Html5Audio._onError = function () {
     this._hasError = true;
+    // Emit one structured event for HTML5 audio failures without adding scene-update polling.
+    if (!this._assetErrorReported) {
+        this._assetErrorReported = true;
+        Utils.emitAssetEvent('audio-error', { url: this._url || '' });
+    }
 };
 
 /**
@@ -167,6 +172,8 @@ Html5Audio.clear = function () {
     this._volume = 1;
     this._loadListeners = [];
     this._hasError = false;
+    // Reset the one-event guard when the shared HTML5 audio element changes tracks.
+    this._assetErrorReported = false;
     this._autoPlay = false;
     this._isLoading = false;
     this._buffered = false;

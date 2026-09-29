@@ -93,11 +93,13 @@ WindowLayer.prototype.move = function(x, y, width, height) {
  * @method update
  */
 WindowLayer.prototype.update = function() {
-    this.children.forEach(function(child) {
+    // An indexed loop avoids allocating a callback for every window on every frame.
+    for (var i = 0; i < this.children.length; i++) {
+        var child = this.children[i];
         if (child.update) {
             child.update();
         }
-    });
+    }
 };
 
 /**

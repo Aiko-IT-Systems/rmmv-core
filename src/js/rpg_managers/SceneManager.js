@@ -76,6 +76,9 @@ SceneManager.preferableRendererType = function() {
         return 'canvas';
     } else if (Utils.isOptionValid('webgl')) {
         return 'webgl';
+    } else if (this.shouldUseCanvasRenderer()) {
+        // Mobile devices use Canvas to avoid WebGL context and driver instability.
+        return 'canvas';
     } else {
         return 'auto';
     }

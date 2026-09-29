@@ -21,9 +21,8 @@ WebAudio.prototype.initialize = function(url) {
     this.clear();
 
     if(!WebAudio._standAlone){
-        this._loader = ResourceHandler.createLoader(url, this._load.bind(this, url), function() {
-            this._hasError = true;
-        }.bind(this));
+        // Report only the final loader failure, keeping diagnostics out of the per-frame update loop.
+        this._loader = ResourceHandler.createLoader(url, this._load.bind(this, url), this._reportError.bind(this));
     }
     this._load(url);
     this._url = url;
@@ -277,6 +276,9 @@ WebAudio.prototype.clear = function() {
     this._loadListeners = [];
     this._stopListeners = [];
     this._hasError = false;
+    // Each newly loaded audio buffer gets at most one final-failure diagnostic.
+    this._assetErrorReported = false;
+    this._assetErrorReported = false;
     this._autoPlay = false;
 };
 
@@ -368,6 +370,15 @@ WebAudio.prototype.isReady = function() {
  */
 WebAudio.prototype.isError = function() {
     return this._hasError;
+};
+
+// Emit one structured event for a failed audio asset without polling it during scene updates.
+WebAudio.prototype._reportError = function() {
+    this._hasError = true;
+    if (!this._assetErrorReported) {
+        this._assetErrorReported = true;
+        Utils.emitAssetEvent('audio-error', { url: this._url || '' });
+    }
 };
 
 /**
@@ -508,9 +519,12 @@ WebAudio.prototype._load = function(url) {
         xhr.onload = function() {
             if (xhr.status < 400) {
                 this._onXhrLoad(xhr);
+            } else {
+                // HTTP failures use the same final audio diagnostic as network errors.
+                this._reportError();
             }
         }.bind(this);
-        xhr.onerror = this._loader || function(){this._hasError = true;}.bind(this);
+        xhr.onerror = this._loader || this._reportError.bind(this);
         xhr.send();
     }
 };
@@ -535,7 +549,7 @@ WebAudio.prototype._onXhrLoad = function(xhr) {
             this._loopLength = this._totalTime;
         }
         this._onLoad();
-    }.bind(this));
+    }.bind(this), this._reportError.bind(this));
 };
 
 /**

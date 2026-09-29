@@ -138,6 +138,12 @@ Bitmap.prototype.initialize = function(width, height) {
     this._decodeAfterRequest = false;
     this._fallbackUrl = null;
     this._hasTriedFallback = false;
+    // Keep recovery state on each bitmap so one missing asset cannot affect another request.
+    this._requestedUrl = '';
+    this._caseVariants = [];
+    this._caseVariantIndex = 0;
+    this._recoveringCase = false;
+    this._usingFallback = false;
 
     /**
      * Cache entry, for images. In all cases _url is the same as cacheEntry.key
@@ -209,6 +215,8 @@ Bitmap.load = function(url, fallbackUrl) {
 
     bitmap._decodeAfterRequest = true;
     bitmap.setFallbackUrl(fallbackUrl);
+    // Retain the caller's exact path for bounded casing probes and diagnostic events.
+    bitmap._requestedUrl = url;
     bitmap._requestImage(url);
 
     return bitmap;
@@ -906,6 +914,21 @@ Bitmap.prototype._onLoad = function() {
 
     this._renewCanvas();
 
+    // Report successful repairs once the corrected or configured fallback asset is usable.
+    if (this._recoveringCase) {
+        Utils.emitAssetEvent('image-recovered', {
+            recovery: 'case', requestedUrl: this._requestedUrl, resolvedUrl: this._url
+        });
+    } else if (this._usingFallback) {
+        Utils.emitAssetEvent('image-recovered', {
+            recovery: 'fallback', requestedUrl: this._requestedUrl, resolvedUrl: this._url
+        });
+    }
+    this._recoveringCase = false;
+    this._usingFallback = false;
+    this._caseVariants = [];
+    this._caseVariantIndex = 0;
+
     switch(this._loadingState){
         case 'requesting':
             this._loadingState = 'requestCompleted';
@@ -980,17 +1003,112 @@ Bitmap.prototype._onError = function() {
     this._image.removeEventListener('load', this._loadListener);
     this._image.removeEventListener('error', this._errorListener);
 
+    // Try bounded URL casing alternatives without repeating the normal retry delays per probe.
+    if (!this._usingFallback) {
+        if (!this._caseVariants.length) {
+            this._caseVariants = Bitmap._getCaseVariants(this._requestedUrl || this._url, 16);
+        }
+        if (this._caseVariantIndex < this._caseVariants.length) {
+            var variant = this._caseVariants[this._caseVariantIndex++];
+            this._recoveringCase = true;
+            this._loader = null;
+            this._requestImage(variant);
+            return true;
+        }
+        this._recoveringCase = false;
+    }
+
     if (this._fallbackUrl && !this._hasTriedFallback && this._url !== this._fallbackUrl) {
         console.warn('Failed to load bitmap, retrying with fallback.', {
             url: this._url,
             fallbackUrl: this._fallbackUrl
         });
         this._hasTriedFallback = true;
+        this._usingFallback = true;
+        this._loader = null;
         this._requestImage(this._fallbackUrl);
-        return;
+        return true;
     }
 
-    this._loadingState = 'error';
+    // A self-contained bitmap keeps the scene renderable after authored and configured images fail.
+    Utils.emitAssetEvent('image-error', {
+        requestedUrl: this._requestedUrl || this._url,
+        fallbackUrl: this._fallbackUrl || null
+    });
+    this._drawErrorPlaceholder();
+    return true;
+};
+
+// Generate at most sixteen single-segment casing alternatives; exact spelling was already tried.
+Bitmap._getCaseVariants = function(url, limit) {
+    if (!url || /^[a-z][a-z0-9+.-]*:/i.test(url)) return [];
+    var parts = url.split('/');
+    var candidates = [];
+    var seen = Object.create(null);
+    for (var i = parts.length - 1; i >= 0 && candidates.length < limit; i--) {
+        var segment = parts[i];
+        var options = [segment.toLowerCase(), segment.toUpperCase(), segment.charAt(0).toUpperCase() + segment.slice(1).toLowerCase()];
+        for (var j = 0; j < options.length && candidates.length < limit; j++) {
+            if (options[j] === segment) continue;
+            var variant = parts.slice();
+            variant[i] = options[j];
+            var candidate = variant.join('/');
+            if (!seen[candidate]) {
+                seen[candidate] = true;
+                candidates.push(candidate);
+            }
+        }
+    }
+    return candidates;
+};
+
+// Draw a local spaghetti-themed failure tile so an unavailable asset never stalls the whole scene.
+Bitmap.prototype._drawErrorPlaceholder = function() {
+    this._image = null;
+    this._loader = null;
+    this.__baseTexture = null;
+    this._createCanvas(360, 220);
+    var context = this._context;
+    context.fillStyle = '#151018';
+    context.fillRect(0, 0, 360, 220);
+    context.strokeStyle = '#d9a63a';
+    context.lineWidth = 8;
+    context.lineCap = 'round';
+    for (var i = 0; i < 5; i++) {
+        context.beginPath();
+        context.moveTo(92 + i * 34, 100);
+        context.bezierCurveTo(55 + i * 40, 48, 260 - i * 20, 160, 105 + i * 35, 147);
+        context.stroke();
+    }
+    context.fillStyle = '#e5d5b6';
+    context.beginPath();
+    context.moveTo(55, 118);
+    context.lineTo(305, 118);
+    context.quadraticCurveTo(292, 188, 180, 188);
+    context.quadraticCurveTo(68, 188, 55, 118);
+    context.fill();
+    context.strokeStyle = '#c8d8e5';
+    context.lineWidth = 5;
+    context.beginPath();
+    context.moveTo(278, 105);
+    context.lineTo(318, 25);
+    context.stroke();
+    context.fillStyle = '#b44424';
+    for (var k = 0; k < 3; k++) {
+        context.beginPath();
+        context.arc(126 + k * 56, 103 + (k % 2) * 8, 9, 0, Math.PI * 2);
+        context.fill();
+    }
+    context.fillStyle = '#fff2cf';
+    context.font = 'bold 18px monospace';
+    context.textAlign = 'center';
+    context.fillText('SPAGHETTI ERROR', 180, 158);
+    context.fillStyle = '#9bf0d0';
+    context.font = 'bold 14px monospace';
+    context.fillText('IMAGE COULD NOT LOAD', 180, 207);
+    this._loadingState = 'loaded';
+    this._setDirty();
+    this._callLoadListeners();
 };
 
 /**
@@ -1022,6 +1140,8 @@ Bitmap.request = function(url, fallbackUrl){
     bitmap.initialize();
 
     bitmap._url = url;
+    // Keep the requested spelling while deferred requests wait for their turn in the queue.
+    bitmap._requestedUrl = url;
     bitmap._loadingState = 'pending';
     bitmap.setFallbackUrl(fallbackUrl);
 
@@ -1035,7 +1155,7 @@ Bitmap.prototype._requestImage = function(url){
         this._image = new Image();
     }
 
-    if (this._decodeAfterRequest && !this._loader && (!this._fallbackUrl || url === this._fallbackUrl)) {
+    if (this._decodeAfterRequest && !this._loader && !this._recoveringCase && (!this._fallbackUrl || url === this._fallbackUrl)) {
         this._loader = ResourceHandler.createLoader(url, this._requestImage.bind(this, url), this._onError.bind(this));
     }
 
