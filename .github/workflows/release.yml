@@ -6,7 +6,7 @@ on:
             version:
                 description: 'Version'
                 required: true
-                default: '1.0.0'
+                default: '2.1.0'
             prerelease:
                 description: 'Prerelease'
                 required: true
@@ -27,6 +27,22 @@ jobs:
                   node-version: 24.x
             - name: Install dependencies
               run: npm install
+              working-directory: ./src
+            - name: Validate release version
+              env:
+                  RELEASE_VERSION: ${{ inputs.version }}
+              run: |
+                  node - <<'NODE'
+                  const fs = require('node:fs');
+                  const pkg = require('./package.json');
+                  const source = fs.readFileSync('./js/rpg_core/Utils.js', 'utf8');
+                  const runtime = source.match(/Utils\.RPGMAKER_VERSION\s*=\s*["']([^"']+)["']/)?.[1];
+                  if (!/^\d+\.\d+\.\d+$/.test(process.env.RELEASE_VERSION || '')) throw new Error('Release version must use x.y.z format.');
+                  if (pkg.version !== process.env.RELEASE_VERSION || runtime !== pkg.version) throw new Error(`Release input (${process.env.RELEASE_VERSION}) must match package (${pkg.version}) and runtime (${runtime}).`);
+                  NODE
+              working-directory: ./src
+            - name: Run focused unit tests
+              run: npm run unittest
               working-directory: ./src
             - name: Build
               run: npm run package
