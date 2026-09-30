@@ -154,13 +154,11 @@ SceneManager.requestUpdate = function() {
 
 SceneManager.update = function() {
     try {
-        this.tickStart();
         if (Utils.isMobileSafari()) {
             this.updateInputData();
         }
         this.updateManagers();
         this.updateMain();
-        this.tickEnd();
     } catch (e) {
         this.catchException(e);
     }
@@ -235,9 +233,12 @@ SceneManager.updateInputData = function() {
 };
 
 SceneManager.updateMain = function() {
+    var ranFrame = false;
     if (Utils.isMobileSafari()) {
+        // Keep mobile Safari on its one-update-per-animation-callback timing path.
         this.changeScene();
         this.updateScene();
+        ranFrame = true;
     } else {
         var newTime = this._getTimeInMsWithoutMobileSafari();
         if (this._currentTime === undefined) { this._currentTime = newTime; }
@@ -246,13 +247,19 @@ SceneManager.updateMain = function() {
         this._currentTime = newTime;
         this._accumulator += fTime;
         while (this._accumulator >= this._deltaTime) {
+            // Measure FPS around logical updates, not every high-refresh display callback.
+            if (!ranFrame) this.tickStart();
+            ranFrame = true;
             this.updateInputData();
             this.changeScene();
             this.updateScene();
             this._accumulator -= this._deltaTime;
         }
+        // Close one FPS sample after any catch-up updates in this display callback.
+        if (ranFrame) this.tickEnd();
     }
-    this.renderScene();
+    // Avoid redundant renders when the display refreshes faster than the 60 Hz game loop.
+    if (ranFrame) this.renderScene();
     this.requestUpdate();
 };
 
@@ -293,6 +300,8 @@ SceneManager.updateScene = function() {
             this._scene.update();
         }
     }
+    // Advance the public game frame counter once per logical scene update.
+    Graphics.frameCount++;
 };
 
 SceneManager.renderScene = function() {

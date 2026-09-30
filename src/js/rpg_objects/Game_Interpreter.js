@@ -193,8 +193,9 @@ Game_Interpreter.prototype.executeCommand = function() {
 };
 
 Game_Interpreter.prototype.checkFreeze = function() {
-    if (this._frameCount !== Graphics.frameCount) {
-        this._frameCount = Graphics.frameCount;
+    // Freeze detection follows rendered callbacks, while Graphics.frameCount tracks logical updates.
+    if (this._frameCount !== Graphics.oldFrameCount) {
+        this._frameCount = Graphics.oldFrameCount;
         this._freezeChecker = 0;
     }
     if (this._freezeChecker++ >= 100000) {

@@ -177,7 +177,8 @@ Graphics.render = function(stage) {
         this._skipCount--;
         this._rendered = false;
     }
-    this.frameCount++;
+    // Retain a render-callback counter for interpreter freeze detection when renders are frame-gated.
+    this.oldFrameCount = (this.oldFrameCount || 0) + 1;
 };
 
 /**
