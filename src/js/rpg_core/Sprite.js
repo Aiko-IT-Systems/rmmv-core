@@ -126,15 +126,16 @@ Object.defineProperty(Sprite.prototype, 'opacity', {
  *
  * @method update
  */
-Sprite.prototype.update = function() {
-    // Snapshot length to preserve forEach behavior when a child is added during an update.
-    var childCount = this.children.length;
-    for (var i = 0; i < childCount; i++) {
-        var child = this.children[i];
-        if (child.update) {
-            child.update();
-        }
+// Reuse one callback so forEach keeps its initial-length semantics without
+// allocating a new callback for every sprite on every frame.
+Sprite._updateChild = function(child) {
+    if (child && typeof child.update === 'function') {
+        child.update();
     }
+};
+
+Sprite.prototype.update = function() {
+    this.children.forEach(Sprite._updateChild);
 };
 
 /**

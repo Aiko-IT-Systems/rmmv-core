@@ -637,6 +637,8 @@ Bitmap.prototype.drawCircle = function(x, y, radius, color) {
  * @param {String} align The alignment of the text
  */
 Bitmap.prototype.drawText = function(text, x, y, maxWidth, lineHeight, align) {
+    // Alignment is optional for Window_Base.drawText callers; Canvas rejects undefined.
+    if (align === undefined || align === null) align = 'left';
     // Note: Firefox has a bug with textBaseline: Bug 737852
     //       So we use 'alphabetic' here.
     if (text !== undefined) {
