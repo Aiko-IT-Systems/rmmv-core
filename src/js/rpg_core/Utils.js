@@ -26,8 +26,7 @@ Utils.RPGMAKER_NAME = 'MV';
  * @type String
  * @final
  */
-// Keep the runtime version aligned with the source and packaged 2.1.2 release.
-Utils.RPGMAKER_VERSION = "2.1.2";
+Utils.RPGMAKER_VERSION = "2.1.3";
 
 // Core asset events give host applications one consistent, structured diagnostic hook.
 Utils.emitAssetEvent = function(type, detail) {
