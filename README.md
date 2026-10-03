@@ -1,6 +1,6 @@
 # RPG Maker MV Custom Core
 
-![RCCB](banner.png)
+![RCCB](social_preview.png)
 
 This is a custom core for RPG Maker MV. It is based on the default core, but with some changes.
 
